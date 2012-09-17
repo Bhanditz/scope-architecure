@@ -1,0 +1,464 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Scope DOM API &mdash; Scope Interface 1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" media="print" href="_static/print.css" type="text/css" />
+    <script src="_static/script.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '#',
+        VERSION:     '1',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="copyright" title="Copyright" href="copyright.html" />
+    <link rel="top" title="Scope Interface 1 documentation" href="index.html" />
+    <link rel="prev" title="Unified Message Structure" href="unified-message-structure.html" /> 
+  </head>
+  <body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="scope-dom-api">
+<h1>Scope DOM API<a class="headerlink" href="#scope-dom-api" title="Permalink to this headline">¶</a></h1>
+<p>This describes the DOM interfaces for <tt class="docutils literal"><span class="pre">scope</span></tt>. The interfaces are divided
+into three parts, a common interface which can be used at any time and two
+specific interfaces. Which one to use depends on the <em>STP</em> version which is
+currently active.</p>
+<p>Accessing the DOM interface is done via the <tt class="docutils literal"><span class="pre">opera</span></tt> object and is only
+available for the special <em>developer tools</em> window.</p>
+<div class="section" id="scope">
+<h2>Scope<a class="headerlink" href="#scope" title="Permalink to this headline">¶</a></h2>
+<p>This is the common interface and is used to create a new client and to
+query the <em>STP</em> version in use, either <a class="reference internal" href="#stp0"><em>STP/0</em></a> or <a class="reference internal" href="#stp1"><em>STP/1</em></a>.</p>
+<div class="section" id="the-scope-interface">
+<span id="id1"></span><h3>The Scope interface<a class="headerlink" href="#the-scope-interface" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-java"><div class="highlight"><pre><span class="kd">interface</span> <span class="nc">Scope</span> <span class="o">{</span>
+  <span class="n">readonly</span> <span class="n">attribute</span> <span class="n">DOMString</span> <span class="n">stpVersion</span><span class="o">;</span>
+  <span class="kt">boolean</span> <span class="nf">scopeAddClient</span><span class="o">(</span><span class="n">in</span> <span class="n">ConnectListener</span> <span class="n">onconnect</span><span class="o">,</span> <span class="n">in</span> <span class="n">ReceiveListener</span> <span class="n">onreceive</span><span class="o">,</span> <span class="n">in</span> <span class="n">DisconnectListener</span> <span class="n">ondisconnect</span><span class="o">,</span> <span class="o">[</span><span class="n">Optional</span><span class="o">]</span> <span class="n">in</span> <span class="n">unsigned</span> <span class="kt">long</span> <span class="n">port</span><span class="o">);</span>
+<span class="o">};</span>
+</pre></div>
+</div>
+<span class="target" id="stpversion"></span><dl class="attribute">
+<dt id="stpVersion">
+<tt class="descname">stpVersion</tt><a class="headerlink" href="#stpVersion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains the <em>STP</em> version of the current connection. The string
+contains either <tt class="docutils literal"><span class="pre">&quot;STP/0&quot;</span></tt> or <tt class="docutils literal"><span class="pre">&quot;STP/1&quot;</span></tt> for an active connection and
+<tt class="docutils literal"><span class="pre">&quot;STP/0&quot;</span></tt> when no connection has been made.</p>
+</dd></dl>
+
+<span class="target" id="scopeaddclient"></span><dl class="function">
+<dt id="scopeAddClient">
+<tt class="descname">scopeAddClient</tt><big>(</big><em>onconnect</em>, <em>onreceive</em>, <em>ondisconnect</em>, <em>port</em><big>)</big><a class="headerlink" href="#scopeAddClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a new client in scope along with the callbacks <cite>onconnect</cite>,
+<cite>onreceive</cite> and <cite>ondisconnect</cite>. The call will initiate contact with the
+builtin scope or a remote host depending on the <cite>port</cite> parameter.
+If a remote host debugging is used then scope will await a connection from
+the remote host, in other words the remote host must connect using
+<em>opera:debug</em>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note :</th><td class="field-body"><p class="first">It will remove any existing client before setting the new one as
+the current client</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>onconnect</strong> &#8211; <a class="reference internal" href="#connectlistener">ConnectListener</a> which is called when connection to host is established.</li>
+<li><strong>onreceive</strong> &#8211; <a class="reference internal" href="#receivelistener">ReceiveListener</a> which is called when new messages arrive from the host.</li>
+<li><strong>ondisconnect</strong> &#8211; <a class="reference internal" href="#disconnectlistener">DisconnectListener</a> which is called when connection to host is lost.</li>
+<li><strong>port</strong> &#8211; The port on to the remote host or <em>0</em> if the builtin host is to be used.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><cite>true</cite> if the client was successfully created, <cite>false</cite> otherwise.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="the-connectlistener-interface">
+<span id="connectlistener"></span><h3>The ConnectListener interface<a class="headerlink" href="#the-connectlistener-interface" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-java"><div class="highlight"><pre><span class="o">[</span><span class="n">Callback</span><span class="o">=</span><span class="n">FunctionOnly</span><span class="o">]</span> <span class="kd">interface</span> <span class="nc">ConnectedListener</span> <span class="o">{</span>
+  <span class="kt">void</span> <span class="nf">onconnected</span><span class="o">(</span><span class="n">in</span> <span class="n">DOMString</span> <span class="n">services</span><span class="o">);</span>
+<span class="o">};</span>
+</pre></div>
+</div>
+<dl class="function">
+<dt id="onconnected">
+<tt class="descname">onconnected</tt><big>(</big><em>services</em><big>)</big><a class="headerlink" href="#onconnected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when the connection with the (remote or builtin) host has been made.
+For an <em>STP/0</em> host this means right after the service list is received,
+for <em>STP/1</em> it will happen after the handshake and client connect phase is
+complete.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>services</strong> &#8211; A string containing a comma separated list of services
+available in the host. e.g. <tt class="docutils literal"><span class="pre">&quot;scope,ecmascript-debugger,exec&quot;</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="the-disconnectlistener-interface">
+<span id="disconnectlistener"></span><h3>The DisconnectListener interface<a class="headerlink" href="#the-disconnectlistener-interface" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-java"><div class="highlight"><pre><span class="o">[</span><span class="n">Callback</span><span class="o">=</span><span class="n">FunctionOnly</span><span class="o">]</span> <span class="kd">interface</span> <span class="nc">DisconnectListener</span> <span class="o">{</span>
+  <span class="kt">void</span> <span class="nf">ondisconnect</span><span class="o">();</span>
+<span class="o">};</span>
+</pre></div>
+</div>
+<dl class="function">
+<dt id="ondisconnect">
+<tt class="descname">ondisconnect</tt><big>(</big><big>)</big><a class="headerlink" href="#ondisconnect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when the connection to the host is disconnected.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="stp-0">
+<span id="stp0"></span><h2>STP/0<a class="headerlink" href="#stp-0" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="the-stp-0-interface">
+<span id="stp0-if"></span><h3>The STP/0 interface<a class="headerlink" href="#the-stp-0-interface" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-java"><div class="highlight"><pre><span class="kd">interface</span> <span class="nc">Stp0</span> <span class="o">:</span> <span class="n">Scope</span> <span class="o">{</span>
+  <span class="kt">boolean</span> <span class="nf">scopeEnableService</span><span class="o">(</span><span class="n">in</span> <span class="n">DOMString</span> <span class="n">service</span><span class="o">);</span>
+  <span class="kt">boolean</span> <span class="nf">scopeTransmit</span><span class="o">(</span><span class="n">in</span> <span class="n">DOMString</span> <span class="n">service</span><span class="o">,</span> <span class="kt">int</span> <span class="n">DOMString</span> <span class="n">payload</span><span class="o">);</span>
+<span class="o">};</span>
+</pre></div>
+</div>
+<span class="target" id="scopetransmit-stp0"></span><dl class="function">
+<dt id="scopeTransmit">
+<tt class="descname">scopeTransmit</tt><big>(</big><em>service</em>, <em>payload</em>, <em>command</em>, <em>tag</em><big>)</big><a class="headerlink" href="#scopeTransmit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a remote call in specific service.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>service</strong> &#8211; Name of service to make the call in.</li>
+<li><strong>payload</strong> &#8211; Data for the command, structure depends on the command.
+Usually an array in the form <em>[arg1, arg2, ...]</em></li>
+<li><strong>command</strong> &#8211; ID of the command to call, lookup the service definition
+to find the command ID.</li>
+<li><strong>tag</strong> &#8211; Assign a <cite>tag</cite> value for the message, this will be present in
+the response (<tt class="docutils literal"><span class="pre">ReceiveListener</span></tt>). The value of the tag
+carries no special meaning for the host so any value is
+possible, however the client should avoid conflicts by ensuring
+a unique value for each active request.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><cite>true</cite> if the data was successfully sent, <cite>false</cite> otherwise.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="scopeenableservice-stp0"></span><dl class="function">
+<dt id="scopeEnableService">
+<tt class="descname">scopeEnableService</tt><big>(</big><em>service</em><big>)</big><a class="headerlink" href="#scopeEnableService" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>service</strong> &#8211; Name of service to enable.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><cite>true</cite> if the request to enable a service was succesfully sent,
+<cite>false</cite> otherwise.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="the-receivelistener-interface">
+<span id="receivelistener-stp0"></span><h3>The ReceiveListener interface<a class="headerlink" href="#the-receivelistener-interface" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-java"><div class="highlight"><pre><span class="o">[</span><span class="n">Callback</span><span class="o">=</span><span class="n">FunctionOnly</span><span class="o">]</span> <span class="kd">interface</span> <span class="nc">ReceiveListener</span> <span class="o">{</span>
+  <span class="kt">void</span> <span class="nf">onreceived</span><span class="o">(</span><span class="n">in</span> <span class="n">DOMString</span> <span class="n">service</span><span class="o">,</span> <span class="n">in</span> <span class="n">DOMString</span> <span class="n">payload</span><span class="o">);</span>
+<span class="o">};</span>
+</pre></div>
+</div>
+<dl class="function">
+<dt id="onreceived">
+<tt class="descname">onreceived</tt><big>(</big><em>service</em>, <em>payload</em>, <em>command</em>, <em>status</em>, <em>tag</em><big>)</big><a class="headerlink" href="#onreceived" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when a new message has been sent to the client, this can either
+be a response, an event or an error.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>service</strong> &#8211; The service which sent the response or event.</li>
+<li><strong>payload</strong> &#8211; The response from service as a string.
+If the host is capable of using <em>STP/1</em> the payload will
+also contain the STP header before the actual payload.
+See <a class="reference internal" href="scope-transport-protocol.html"><em>Scope transport protocol v1</em></a> for more details.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="stp-1">
+<span id="stp1"></span><h2>STP/1<a class="headerlink" href="#stp-1" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="the-stp-1-interface">
+<span id="stp1-if"></span><h3>The STP/1 interface<a class="headerlink" href="#the-stp-1-interface" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-java"><div class="highlight"><pre><span class="kd">interface</span> <span class="nc">Stp1</span> <span class="o">:</span> <span class="n">Scope</span> <span class="o">{</span>
+  <span class="kt">boolean</span> <span class="nf">scopeTransmit</span><span class="o">(</span><span class="n">in</span> <span class="n">DOMString</span> <span class="n">service</span><span class="o">,</span> <span class="n">in</span> <span class="n">any</span> <span class="n">payload</span><span class="o">,</span> <span class="n">in</span> <span class="n">unsigned</span> <span class="kt">long</span> <span class="n">command</span><span class="o">,</span> <span class="n">in</span> <span class="n">unsigned</span> <span class="kt">long</span> <span class="n">tag</span><span class="o">);</span>
+<span class="o">};</span>
+</pre></div>
+</div>
+<span class="target" id="scopetransmit"></span><dl class="function">
+<dt>
+<tt class="descname">scopeTransmit</tt><big>(</big><em>service</em>, <em>payload</em>, <em>command</em>, <em>tag</em><big>)</big></dt>
+<dd><p>Perform a remote call in specific service.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>service</strong> &#8211; Name of service to make the call in.</li>
+<li><strong>payload</strong> &#8211; Data for the command, structure depends on the command.
+Usually an array in the form <em>[arg1, arg2, ...]</em></li>
+<li><strong>command</strong> &#8211; ID of the command to call, lookup the service definition
+to find the command ID.</li>
+<li><strong>tag</strong> &#8211; Assign a <cite>tag</cite> value for the message, this will be present in
+the response (<tt class="docutils literal"><span class="pre">ReceiveListener</span></tt>). The value of the tag
+carries no special meaning for the host so any value is
+possible, however the client should avoid conflicts by ensuring
+a unique value for each active request.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><cite>true</cite> if the data was successfully sent, <cite>false</cite> otherwise.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="receivelistener">
+<span id="id2"></span><h3>The ReceiveListener interface<a class="headerlink" href="#receivelistener" title="Permalink to this headline">¶</a></h3>
+<p>A callback which is used whenever a new message (response, event or error)
+is received from the host.</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="o">[</span><span class="n">Callback</span><span class="o">=</span><span class="n">FunctionOnly</span><span class="o">]</span> <span class="kd">interface</span> <span class="nc">ReceiveListener</span> <span class="o">{</span>
+  <span class="kt">void</span> <span class="nf">onreceived</span><span class="o">(</span><span class="n">in</span> <span class="n">DOMString</span> <span class="n">service</span><span class="o">,</span> <span class="n">in</span> <span class="n">any</span> <span class="n">payload</span><span class="o">,</span> <span class="n">unsigned</span> <span class="kt">long</span> <span class="n">command</span><span class="o">,</span> <span class="n">unsigned</span> <span class="kt">long</span> <span class="n">status</span><span class="o">,</span> <span class="n">unsigned</span> <span class="kt">long</span> <span class="n">tag</span><span class="o">);</span>
+<span class="o">};</span>
+</pre></div>
+</div>
+<dl class="function">
+<dt>
+<tt class="descname">onreceived</tt><big>(</big><em>service</em>, <em>payload</em>, <em>command</em>, <em>status</em>, <em>tag</em><big>)</big></dt>
+<dd><p>Called when a new message has been sent to the client, this can either
+be a response, an event or an error.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>service</strong> &#8211; The service which sent the response or event.</li>
+<li><strong>payload</strong> &#8211; The response from the service as an array, structure
+depends on the service and command. Usually in the form
+<em>[res1, res2, ..]</em></li>
+<li><strong>command</strong> &#8211; ID of the command which triggered the response or the ID
+of the event which was triggered. The actual value is
+unique per service, and can be found by looking at the
+specific service definition.</li>
+<li><strong>tag</strong> &#8211; The <cite>tag</cite> value which was previously sent in <a class="reference internal" href="#scopetransmit">scopeTransmit</a>.
+If the message does not contain a tag or it was an event it
+will be set to <tt class="docutils literal"><span class="pre">0</span></tt>.</li>
+<li><strong>status</strong> &#8211; The status of the response. A value of <tt class="docutils literal"><span class="pre">0</span></tt> means the call
+was successful while a non-zero value means an error occured.
+Refer to the <a class="reference internal" href="scope-transport-protocol.html"><em>Scope transport protocol v1</em></a> document for
+error codes.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="adding-a-client">
+<h3>Adding a client<a class="headerlink" href="#adding-a-client" title="Permalink to this headline">¶</a></h3>
+<p>Adding a new client is done with the <a class="reference internal" href="#scopeaddclient">scopeAddClient</a> call but some
+additional checking is required once the connection has been made.
+Two things must be checked, first the capability of the <em>DOM</em> interface
+then the capability of the (remote or builtin) host.</p>
+<ol class="arabic simple">
+<li>The property <a class="reference internal" href="#stpversion">stpVersion</a> will be present if the new <em>DOM</em> interface
+is present.</li>
+<li>The host can be checked by seeing if the service <strong>&#8220;stp-1&#8221;</strong> is present
+in the service list.</li>
+</ol>
+<p>Example code:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">onconnect</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">services</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="nx">alert</span><span class="p">(</span><span class="s2">&quot;Services &quot;</span> <span class="o">+</span> <span class="nx">services</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;stpVersion&quot;</span> <span class="k">in</span> <span class="nx">opera</span><span class="p">)</span>
+  <span class="p">{</span>
+      <span class="c1">// We are using the STP/1 dom interface</span>
+      <span class="c1">// check which version is in use</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">opera</span><span class="p">.</span><span class="nx">stpVersion</span> <span class="o">==</span> <span class="s2">&quot;STP/1&quot;</span><span class="p">)</span>
+          <span class="nx">alert</span><span class="p">(</span><span class="s2">&quot;Connected to STP/1 host&quot;</span><span class="p">);</span>
+      <span class="k">else</span>
+          <span class="nx">alert</span><span class="p">(</span><span class="s2">&quot;Connected to STP/0 host but using STP/1 dom interface&quot;</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">else</span>
+  <span class="p">{</span>
+    <span class="c1">// We are using a pre-STP/1 dom interface</span>
+    <span class="c1">// check for stp-1 in the service list</span>
+    <span class="k">for</span> <span class="p">(</span><span class="nx">service</span> <span class="k">in</span> <span class="nx">services</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))</span>
+    <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">service</span> <span class="o">==</span> <span class="s2">&quot;stp-1&quot;</span><span class="p">)</span>
+      <span class="p">{</span>
+          <span class="nx">alert</span><span class="p">(</span><span class="s2">&quot;Connected to STP/1 host but using STP/0 dom interface&quot;</span><span class="p">);</span>
+          <span class="k">return</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="nx">alert</span><span class="p">(</span><span class="s2">&quot;Connected to STP/0 host&quot;</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">onreceive</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">service</span><span class="p">,</span> <span class="nx">message</span><span class="p">,</span> <span class="nx">command</span><span class="p">,</span> <span class="nx">status</span><span class="p">,</span> <span class="nx">tag</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">status</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+  <span class="p">{</span>
+    <span class="nx">alert</span><span class="p">(</span><span class="s2">&quot;Error in command &quot;</span> <span class="o">+</span> <span class="nx">command</span><span class="p">);</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">tag</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+  <span class="p">{</span>
+    <span class="c1">// Handle response to previous command</span>
+  <span class="p">}</span>
+  <span class="k">else</span>
+  <span class="p">{</span>
+    <span class="c1">// Handle event or non-tagged response</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">ondisconnect</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="nx">alert</span><span class="p">(</span><span class="s2">&quot;Host has been disconnected&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nx">opera</span><span class="p">.</span><span class="nx">scopeAddClient</span><span class="p">(</span><span class="nx">onconnect</span><span class="p">,</span> <span class="nx">onreceive</span><span class="p">,</span> <span class="nx">ondisconnect</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="enabling-a-service">
+<h3>Enabling a service<a class="headerlink" href="#enabling-a-service" title="Permalink to this headline">¶</a></h3>
+<p>For <em>STP/0</em> connections the client must use <a class="reference internal" href="#scopeenableservice-stp0"><em>scopeEnableService</em></a> to enable a service,
+otherwise it must do a normal call using <a class="reference internal" href="#scopetransmit">scopeTransmit</a> using the Scope.Enable
+command.</p>
+<p>Example code to enable <tt class="xref doc docutils literal"><span class="pre">WindowManager</span></tt> in an STP/0 host:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">scopeEnableService</span><span class="p">(</span><span class="s2">&quot;window-manager&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>No response is received for this.</p>
+<p>Example code to enable <tt class="xref doc docutils literal"><span class="pre">WindowManager</span></tt> in an STP/1 host:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">scopeTransmit</span><span class="p">(</span><span class="s2">&quot;scope&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;window-manager&quot;</span><span class="p">],</span> <span class="mi">5</span> <span class="cm">/*scope.Enable*/</span><span class="p">,</span> <span class="nx">tag</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The client will receive a normal message in the <cite>onreceive</cite> callback when the
+service is enabled.</p>
+</div>
+<div class="section" id="transmitting-data">
+<h3>Transmitting data<a class="headerlink" href="#transmitting-data" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="#scopetransmit">scopeTransmit</a> is used to send data to the host. For the <em>STP/1</em> <em>DOM</em> interface
+this is done using native JavaScript objects, where-as the <em>STP/0</em> <em>DOM</em> interface
+requires data as a string and must be manually serialized.</p>
+<p>Example code for <em>STP/0</em>:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">onreceive</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">service</span><span class="p">,</span> <span class="nx">message</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="p">}</span>
+
+<span class="nx">opera</span><span class="p">.</span><span class="nx">scopeTransmit</span><span class="p">(</span><span class="s2">&quot;ecmascript-debugger&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;get-runtimes&gt;&lt;/get-runtimes&gt;&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Example code for <em>STP/1</em>:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">onreceive</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">service</span><span class="p">,</span> <span class="nx">message</span><span class="p">,</span> <span class="nx">command</span><span class="p">,</span> <span class="nx">status</span><span class="p">,</span> <span class="nx">tag</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="p">}</span>
+
+<span class="nx">opera</span><span class="p">.</span><span class="nx">scopeTransmit</span><span class="p">(</span><span class="s2">&quot;ecmascript-debugger&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">42</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference internal" href="#">Scope DOM API</a><ul>
+<li><a class="reference internal" href="#scope">Scope</a><ul>
+<li><a class="reference internal" href="#the-scope-interface">The Scope interface</a></li>
+<li><a class="reference internal" href="#the-connectlistener-interface">The ConnectListener interface</a></li>
+<li><a class="reference internal" href="#the-disconnectlistener-interface">The DisconnectListener interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#stp-0">STP/0</a><ul>
+<li><a class="reference internal" href="#the-stp-0-interface">The STP/0 interface</a></li>
+<li><a class="reference internal" href="#the-receivelistener-interface">The ReceiveListener interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#stp-1">STP/1</a><ul>
+<li><a class="reference internal" href="#the-stp-1-interface">The STP/1 interface</a></li>
+<li><a class="reference internal" href="#receivelistener">The ReceiveListener interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#adding-a-client">Adding a client</a></li>
+<li><a class="reference internal" href="#enabling-a-service">Enabling a service</a></li>
+<li><a class="reference internal" href="#transmitting-data">Transmitting data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="unified-message-structure.html"
+                                  title="previous chapter">Unified Message Structure</a></p>
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/img-press-logo.png" alt="Logo"/>
+            </a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </body>
+</html>

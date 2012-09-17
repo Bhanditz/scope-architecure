@@ -1,0 +1,70 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Glossary &mdash; Scope Interface 1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" media="print" href="_static/print.css" type="text/css" />
+    <script src="_static/script.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '#',
+        VERSION:     '1',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="copyright" title="Copyright" href="copyright.html" />
+    <link rel="top" title="Scope Interface 1 documentation" href="index.html" /> 
+  </head>
+  <body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="glossary">
+<span id="id1"></span><h1>Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h1>
+<dl class="glossary docutils">
+<dt id="term-client">client</dt>
+<dd>An application which acts as debugger.</dd>
+<dt id="term-host">host</dt>
+<dd>An Opera instance to be debugged. The same as debugee.</dd>
+<dt id="term-message">message</dt>
+<dd>In the context of <tt class="docutils literal"><span class="pre">STP</span></tt> or the scope interface it is an entity in the communication between a <a class="reference internal" href="#term-host"><em class="xref std std-term">host</em></a> and a <a class="reference internal" href="#term-client"><em class="xref std std-term">client</em></a>. It is either a command, a response, an event or an error.</dd>
+<dt id="term-service">service</dt>
+<dd>The meaning depends on the context. A service on the <a class="reference internal" href="#term-host"><em class="xref std std-term">host</em></a> is a domain specific part of the scope interface. It can be enabled and disabled. So far there is <tt class="docutils literal"><span class="pre">Scope</span></tt>, <tt class="docutils literal"><span class="pre">WindowManager</span></tt>, <tt class="docutils literal"><span class="pre">ConsoleLogger</span></tt>, <tt class="docutils literal"><span class="pre">HTTPLogger</span></tt>, <tt class="docutils literal"><span class="pre">Exec</span></tt>, <tt class="docutils literal"><span class="pre">EcmascriptDebugger</span></tt> and <tt class="docutils literal"><span class="pre">URLPlayer</span></tt>.
+On the <a class="reference internal" href="#term-client"><em class="xref std std-term">client</em></a> it means normally an object which exposes the specific interface as a counterpart of the host service as an API.</dd>
+<dt id="term-stp-0">STP/0</dt>
+<dd>Scope Transfer Protocol version 0. Specifies the format of messages between a <a class="reference internal" href="#term-host"><em class="xref std std-term">host</em></a> and a <a class="reference internal" href="#term-client"><em class="xref std std-term">client</em></a>. Used in Opera version 10 and below.</dd>
+<dt id="term-stp-1">STP/1</dt>
+<dd>Scope Transfer Protocol version 1. Specifies the format of messages between a <a class="reference internal" href="#term-host"><em class="xref std std-term">host</em></a> and a <a class="reference internal" href="#term-client"><em class="xref std std-term">client</em></a>. Will be used in future versions of Opera.</dd>
+<dt id="term-json">JSON</dt>
+<dd>JavaScript Object Notation. Simple markup for data structures.</dd>
+</dl>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/img-press-logo.png" alt="Logo"/>
+            </a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </body>
+</html>

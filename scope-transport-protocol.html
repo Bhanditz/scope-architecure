@@ -1,0 +1,834 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Scope transport protocol v1 &mdash; Scope Interface 1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" media="print" href="_static/print.css" type="text/css" />
+    <script src="_static/script.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '#',
+        VERSION:     '1',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="copyright" title="Copyright" href="copyright.html" />
+    <link rel="top" title="Scope Interface 1 documentation" href="index.html" />
+    <link rel="next" title="Unified Message Structure" href="unified-message-structure.html" />
+    <link rel="prev" title="Scope Interface for the Opera Browser" href="index.html" /> 
+  </head>
+  <body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="scope-transport-protocol-v1">
+<h1>Scope transport protocol v1<a class="headerlink" href="#scope-transport-protocol-v1" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Author:</th><td class="field-body">Jan Borsodi (jborsodi [at] opera.com)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Version:</th><td class="field-body">0.10</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">22nd April 2009</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="ebnf">
+<h2>EBNF<a class="headerlink" href="#ebnf" title="Permalink to this headline">¶</a></h2>
+<p>The following common <a class="reference external" href="http://en.wikipedia.org/wiki/Ebnf">EBNF</a> entries are defined:</p>
+<pre>
+<strong id="grammar-token-pb_uint_short">pb_uint_short</strong> ::=  &lt;32bit unsigned encoded as Protocol Buffer varint&gt;
+<strong id="grammar-token-number">number       </strong> ::=  <a class="reference internal" href="#grammar-token-digit"><tt class="xref docutils literal"><span class="pre">digit</span></tt></a>+
+<strong id="grammar-token-digit">digit        </strong> ::=  &quot;0&quot; | &quot;1&quot; | &quot;2&quot; | &quot;3&quot; | &quot;4&quot; | &quot;5&quot; | &quot;6&quot; | &quot;7&quot; | &quot;8&quot; | &quot;9&quot;
+<strong id="grammar-token-space">space        </strong> ::=  &quot;\x20&quot;
+<strong id="grammar-token-newline">newline      </strong> ::=  &quot;\x0a&quot;
+</pre>
+</div>
+<div class="section" id="unified-message-structure">
+<h2>Unified Message Structure<a class="headerlink" href="#unified-message-structure" title="Permalink to this headline">¶</a></h2>
+<p>The payload of all messages sent from <em>scope</em> will follow the specification
+<a class="reference internal" href="unified-message-structure.html"><em>Unified Message Structure</em></a>. This specification is abbreviated as UMS
+throughout the document.</p>
+</div>
+<div class="section" id="protocols">
+<h2>Protocols<a class="headerlink" href="#protocols" title="Permalink to this headline">¶</a></h2>
+<p>There are currently several different protocols in use by scope and its related
+components. To avoid confusion between them and their improvements, they
+are summarized in the following sections.</p>
+<div class="section" id="scope-transport-protocol">
+<h3>Scope Transport Protocol<a class="headerlink" href="#scope-transport-protocol" title="Permalink to this headline">¶</a></h3>
+<p>This is the basic component in the communication layer, abbreviated as STP.
+It defines how to send commands with data (arguments) between the
+Opera host and the clients.</p>
+<p>STP version 0 is defined as:</p>
+<pre>
+<strong id="grammar-token-stp">stp         </strong> ::=  <a class="reference internal" href="#grammar-token-count"><tt class="xref docutils literal"><span class="pre">count</span></tt></a> <a class="reference internal" href="#grammar-token-terminator"><tt class="xref docutils literal"><span class="pre">terminator</span></tt></a> <a class="reference internal" href="#grammar-token-keyword"><tt class="xref docutils literal"><span class="pre">keyword</span></tt></a> <a class="reference internal" href="#grammar-token-terminator"><tt class="xref docutils literal"><span class="pre">terminator</span></tt></a> &lt;payload&gt;
+<strong id="grammar-token-terminator">terminator  </strong> ::=  <a class="reference internal" href="#grammar-token-space"><tt class="xref docutils literal"><span class="pre">space</span></tt></a>
+<strong id="grammar-token-count">count       </strong> ::=  <a class="reference internal" href="#grammar-token-number"><tt class="xref docutils literal"><span class="pre">number</span></tt></a>
+<strong id="grammar-token-keyword">keyword     </strong> ::=  <a class="reference internal" href="#grammar-token-command"><tt class="xref docutils literal"><span class="pre">command</span></tt></a> | <a class="reference internal" href="#grammar-token-service"><tt class="xref docutils literal"><span class="pre">service</span></tt></a>
+<strong id="grammar-token-command">command     </strong> ::=  &quot;*&quot; <a class="reference internal" href="#grammar-token-command_name"><tt class="xref docutils literal"><span class="pre">command_name</span></tt></a>
+<strong id="grammar-token-command_name">command_name</strong> ::=  &quot;services&quot; | &quot;enable&quot; | &quot;disable&quot; | &quot;quit&quot; | &quot;hostquit&quot;
+<strong id="grammar-token-service">service     </strong> ::=  &lt;any source character except &quot;,&quot;&gt;+
+</pre>
+<p>The flow of the transport protocol currently looks like this:</p>
+<div class="highlight-python"><pre>Opera                           proxy                    client
+
+*services     ----------------&gt;
+                                    -----------------&gt;   *services
+                                    &lt;-----------------   *enable
+*enable       &lt;----------------
+data          &lt;---------------------------------------&gt;  data
+                                ....
+                                    &lt;------------------  *quit
+*disable      &lt;----------------
+*quit         ----------------&gt;
+                                    ------------------&gt;  *hostquit
+                                    ------------------&gt;  *quit</pre>
+</div>
+<p>STP is used between the Opera host and the proxy as well as between the proxy
+and clients speaking STP.</p>
+<p>STP version 1 is described in detail in <a class="reference internal" href="#stp-1">STP/1</a>.</p>
+</div>
+<div class="section" id="scope-http-adapter-protocol">
+<h3>Scope HTTP Adapter Protocol<a class="headerlink" href="#scope-http-adapter-protocol" title="Permalink to this headline">¶</a></h3>
+<p>This is the communication layer between the proxy and the clients
+which are limited to HTTP communication. The proxy takes care of transforming
+the STP communication to HTTP request/responses. The major difference is how
+requests and responses/events are handled. In HTTP the request/response is
+synchronous, and you cannot receive data without asking for it.</p>
+<p>This protocol is currently implemented in the tool <em>Dragonkeeper</em>.</p>
+</div>
+<div class="section" id="scope-dom-interface">
+<h3>Scope DOM Interface<a class="headerlink" href="#scope-dom-interface" title="Permalink to this headline">¶</a></h3>
+<p>This is the direct communication layer used between the Opera Host and the
+JavaScript client. Here the STP is trimmed down to only send the KEYWORD and
+DATA elements. All of this is handled by the the <em>opera.scopeTransmit</em> and
+<em>opera.scopeAddClient</em> JavaScript functions.</p>
+<p>This is currently used by the built-in Opera Dragonfly client for the Opera
+9.5 desktop release.</p>
+<p>A new interface is designed to accomodate the changes in STP/1, it is
+explained in details in <a class="reference internal" href="scope-dom-interface.html"><em>Scope DOM API</em></a>.</p>
+</div>
+</div>
+<div class="section" id="problems">
+<h2>Problems<a class="headerlink" href="#problems" title="Permalink to this headline">¶</a></h2>
+<p>The current protocol is based around sending <em>Unicode</em> strings to and from the
+clients, which makes it difficult to send binary data. Also, the encoding is
+hardcoded to <em>UTF-16</em> for the entire message (STP and payload). This represents
+uneccessary overhead for sending data which is often in <em>US-ASCII</em> only.</p>
+<p>XML is used as primary format which is inefficient when transporting lots
+of data. Lightweight alternatives are needed. XML also affects the decoding
+process of some clients since it must first decode it to a DOM tree, and
+then extract the interesting parts using the DOM interface which is slow and
+cumbersome.</p>
+<p>The format is predeterminded by each service and there is no way
+to change it dynamically. For instance, JavaScript based clients will be
+able to decode the responses more quickly if they are sent as JSON.</p>
+<p>There is no standardized way to tie (&lt;tag&gt;) a response to a previous
+request. This is currently embedded in the content of the request
+which is specific to each service and each command in the service. For
+instance, if you receive an error message there is no information about
+what request caused this error. This is due to the error handler being outside
+of the service implementation, and it has no knowledge of the &lt;tag&gt; entry.
+There is also a chance of &lt;tag&gt; conflicts when multiple clients are in use.
+A better system for handling the tags is needed.</p>
+<p>The protocol was designed to handle multiple clients with the use of
+the proxy. However, there are problems with multiple clients
+in some services (ecmascript-debugger). Multi-client will be removed and the
+proxy updated to only allow one client at a time.</p>
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>The various parts of the scope communication chain are:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="49%" />
+<col width="51%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Communication</th>
+<th class="head">Port/Protocol</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Opera&lt;-&gt;Proxy/Client</td>
+<td>Port:7001 STP/0</td>
+</tr>
+<tr class="row-odd"><td>Proxy&lt;-&gt;Clients</td>
+<td>Port:8001 STP/0</td>
+</tr>
+<tr class="row-even"><td>Proxy&lt;-&gt;HTTP-Client</td>
+<td>Port:8002 HTTP/1.1</td>
+</tr>
+<tr class="row-odd"><td>Opera&lt;-&gt;Opera</td>
+<td>Port:49152-65535 STP/0</td>
+</tr>
+<tr class="row-even"><td>Opera&lt;-&gt;Remote Opera</td>
+<td>Port:49152-65535 STP/0</td>
+</tr>
+<tr class="row-odd"><td>Opera&lt;-&gt;JS-Client</td>
+<td>DOM interface</td>
+</tr>
+</tbody>
+</table>
+<p>To get a better overview, a few examples follow which display how the various
+protocols communicate.</p>
+<p>A typical developer setup with Opera Dragonfly communicating with the Proxy
+using Dragonkeeper:</p>
+<div class="highlight-python"><pre>+-------+ STP/0 +--------------+ HTTP/1.1 +-----------+
+|       | 7001  |              |   8002   |   Opera   |
+| Scope |&lt;-----&gt;| Dragonkeeper +&lt;--------&gt;| Dragonfly |
+|       |       |              |          |           |
++-------+       +--------------+          +-----------+</pre>
+</div>
+<p>The common usage scenario with Opera Dragonfly connecting to Opera using
+the internal JavaScript methods. Internally these methods will
+communicate with scope using an internal socket (this will be changed):</p>
+<div class="highlight-python"><pre>+-------+ +----------+            +-----------+
+|       | | Opera    | JavaScript |   Opera   |
+| Scope | | Internal |&lt;----------&gt;| Dragonfly |
+|       | | "Proxy"  |            |           |
++-------+ +----------+            +-----------+
+   ^         ^
+   |         |
+   +---------+
+      STP/0
+   49152-65535</pre>
+</div>
+<p>Another setup follows with Opera Dragonfly for remote debugging on an embedded device,
+in this case a mobile phone:</p>
+<div class="highlight-python"><pre>+-------+ +----------+            +-----------+
+|       | | Opera    | JavaScript |   Opera   |
+| Scope | | Internal |&lt;----------&gt;| Dragonfly |
+|       | | "Proxy"  |            |           |
++-------+ +----------+            +-----------+
+             ^
+             |
+             |
+             | STP/0
++---------+  | 7001
+|         |  |
+| Phone   |&lt;-+
+| w/Scope |
+|         |
++---------+</pre>
+</div>
+<p>Other clients can communicate directly using STP. In the following case, the Python client
+is shown:</p>
+<div class="highlight-python"><pre>+-------+ STP/0 +-------+  STP/0   +---------+
+|       | 7001  |       |   8001   |         |
+| Scope |&lt;-----&gt;| Proxy +&lt;--------&gt;| PyScope |
+|       |       |       |          |         |
++-------+       +-------+          +---------+</pre>
+</div>
+</div>
+<div class="section" id="backwards-compatibility">
+<h2>Backwards compatibility<a class="headerlink" href="#backwards-compatibility" title="Permalink to this headline">¶</a></h2>
+<p>The new protocol will introduce a major break in compatibility between the
+host, proxy and clients. To ensure that future changes are less disruptive
+a set of compatibility rules will be defined. The various components in scope
+will be defined to either provide a break between each version change, or
+provide only incremental changes for each version.</p>
+<p>The transport protocol is the fundemental part. Changes to it will be difficult
+to do incrementally, so there is only a need for breaks between versions.
+This means that clients must immediately disconnect if they encounter a
+version they do not know how to handle.</p>
+<p>Services however, will use a combination of incremental and breaking changes.
+This is handled by supplying a version number with two components: the first
+is the major version and determines changes that will break existing clients, and
+the second is the minor version which will determine incremental (or additional)
+changes. This means that clients will not need to be updated if only the minor
+version increases. For this to be possible the following rules apply:</p>
+<ol class="arabic simple">
+<li>Events and responses will be sent using the same structure as the previous
+versions.</li>
+<li>Events and commands can only get new optional parameters. Existing
+parameters cannot change or be removed.</li>
+<li>If a command requires a change of behaviour (or parameter change), a new
+command must be made and the existing one must be kept.</li>
+<li>New and optional parameters to commands can be used to trigger extended
+functionality or alternative behaviour. However, this must be confined to
+the client that requests the command.</li>
+<li>The order of fields can never be changed.</li>
+<li>New events can be added as long as they are optional. This also means that
+clients must ignore events which they do not recognize.</li>
+</ol>
+<p>If the amount of work to keep backwards compatibility increases, or the code
+gets bloated, the major version must be increased. This will signal a major
+change and allows for older behaviour and code to be cleanup or removed.</p>
+<p>The compatibility changes in each service are handled separately. This ensures
+that a client which is dependent on one specific service does not need to
+change unless that service gets a major change.</p>
+<p>Finally, a global version for scope is defined. This will use the current core
+version. It allows clients with more complex service dependencies a way to
+determine available features on a global scale.</p>
+<div class="section" id="transport-layer">
+<h3>Transport layer<a class="headerlink" href="#transport-layer" title="Permalink to this headline">¶</a></h3>
+<p>The transport layer will support both the new protocol (STP/1) and the old
+one (STP/0). If not all of the nodes on the transport layer can speak the new protocol,
+it will fallback to STP/0 and encode the message. It can then be transported
+over STP/0 until it reaches the destination where it can be decoded into
+a real STP/1 message. This is known as <a class="reference internal" href="#extended-stp-0">Extended STP/0</a>.</p>
+</div>
+<div class="section" id="opera-host">
+<h3>Opera host<a class="headerlink" href="#opera-host" title="Permalink to this headline">¶</a></h3>
+<p>The host will first send out the service list using the old syntax (*services).
+Then it will wait for the first request from the client. If the client sends
+the new handshake, the version to use is determined in the handshake message.
+Otherwise it means an older client is connecting, and the host will switch
+to <a class="reference internal" href="#extended-stp-0">Extended STP/0</a>.</p>
+</div>
+<div class="section" id="proxy">
+<h3>Proxy<a class="headerlink" href="#proxy" title="Permalink to this headline">¶</a></h3>
+<p>The proxy will also support both protocol versions. The version that will
+be used is determined by the client unless the host is running core-2.3 or
+lower. In this case all communication is done using STP/0.</p>
+<p>The HTTP API as it is today will be removed from the external proxy as it
+is only used for internal development of Opera Dragonfly. A separate
+implementation will be made for development purposes only.</p>
+</div>
+<div class="section" id="client">
+<h3>Client<a class="headerlink" href="#client" title="Permalink to this headline">¶</a></h3>
+<p>New clients will need to decide the version of the protocol to use. If the host
+and proxy supports STP/1 then it can choose to initiate this by performing
+the new handshake. If STP/1 cannot be used then the client must fallback to
+<a class="reference internal" href="#extended-stp-0">Extended STP/0</a>.</p>
+<p>In addition to checking the transport protocol version, it must also check the
+core version of the host. If the host has core-2.4 or higher it means it
+supports the new Unified Message Structure. This affects how the messages
+are constructed, ie. names of fields and structure.</p>
+<p>In short, the following setups will be encountered:</p>
+<ol class="arabic simple">
+<li>STP/1 and UMS</li>
+<li>STP/0 and UMS formatted as JSON or XML, AKA <a class="reference internal" href="#extended-stp-0">Extended STP/0</a></li>
+<li>STP/0 and old XML structures (core-2.3 and lower)</li>
+</ol>
+<p>Newer clients that do not need to consider backwards compatibility will only
+need to support case #1.</p>
+</div>
+<div class="section" id="opera-dragonfly">
+<h3>Opera Dragonfly<a class="headerlink" href="#opera-dragonfly" title="Permalink to this headline">¶</a></h3>
+<p>Opera Dragonfly cannot control the transport protocol version that will be used
+and must adhere to the message structure that will be in use. Opera Dragonfly
+will need to read out the STP and core version and decide from that how
+messages are to be formatted and parsed.</p>
+<p>When it is possible, Opera Dragonfly will stick to JSON as the format for a message.
+This would mean case #1 and #2 as described in the section <a class="reference internal" href="#client">Client</a>.</p>
+</div>
+</div>
+<div class="section" id="stp-1">
+<h2>STP/1<a class="headerlink" href="#stp-1" title="Permalink to this headline">¶</a></h2>
+<p>The new transport layer is defined as:</p>
+<pre>
+<strong id="grammar-token-connection">connection</strong> ::=  <a class="reference internal" href="#grammar-token-services"><tt class="xref docutils literal"><span class="pre">services</span></tt></a> <a class="reference internal" href="#grammar-token-handshake"><tt class="xref docutils literal"><span class="pre">handshake</span></tt></a> <a class="reference internal" href="#grammar-token-messages"><tt class="xref docutils literal"><span class="pre">messages</span></tt></a>
+<strong id="grammar-token-messages">messages  </strong> ::=  <a class="reference internal" href="#grammar-token-message"><tt class="xref docutils literal"><span class="pre">message</span></tt></a>*
+</pre>
+<p>This shows that the original STP/0 service list SERVICES is the first
+entry to be sent. Next comes a handshake which results in the handshake
+response <cite>HANDSHAKE</cite> followed by the actual transport messages.</p>
+<p>The outer layer of the transport message is defined as:</p>
+<pre>
+<strong id="grammar-token-message">message </strong> ::=  &quot;STP&quot; <a class="reference internal" href="#grammar-token-stp_ver"><tt class="xref docutils literal"><span class="pre">stp_ver</span></tt></a> <a class="reference internal" href="#grammar-token-stp_size"><tt class="xref docutils literal"><span class="pre">stp_size</span></tt></a> <a class="reference internal" href="#grammar-token-stp_data"><tt class="xref docutils literal"><span class="pre">stp_data</span></tt></a>
+<strong id="grammar-token-stp_ver">stp_ver </strong> ::=  &lt;single octet&gt;
+<strong id="grammar-token-stp_size">stp_size</strong> ::=  <a class="reference internal" href="#grammar-token-pb_uint_short"><tt class="xref docutils literal"><span class="pre">pb_uint_short</span></tt></a>
+<strong id="grammar-token-stp_data">stp_data</strong> ::=  &lt;octets equal to stp-size&gt;
+</pre>
+<p>This allows for multiple versions of a message to be sent. Each message is
+uniquely identified by the string &#8220;STP&#8221; followed by a version number. The
+size of the entire message is followed by the data of the message. This
+allows any decoder to check the version and skip data that it does not
+understand. The decoding of STP-DATA depends on the version.</p>
+<p>An STP/1 message will look like:</p>
+<pre>
+<strong id="grammar-token-stp_one_message">stp_one_message</strong> ::=  &quot;STP&quot; &quot;\x01&quot; <a class="reference internal" href="#grammar-token-stp_size"><tt class="xref docutils literal"><span class="pre">stp_size</span></tt></a> <a class="reference internal" href="#grammar-token-stp_one_data"><tt class="xref docutils literal"><span class="pre">stp_one_data</span></tt></a>
+</pre>
+<p>In addition, it is now possible to pass STP/0 messages over the STP/1 protocol.
+This is done by setting the STP-VER to 0 and then passing the STP/0 data.
+The fields COUNT and SEPARATOR found in STP/0 will be skipped as the size is
+already present in the STP/1 layer. This means we only transfer the KEYWORD
+and DATA. An STP/0 message wrapped in STP/1 will look like:</p>
+<pre>
+<strong id="grammar-token-stp_zero_message">stp_zero_message</strong> ::=  &quot;STP&quot; &quot;\x00&quot; <a class="reference internal" href="#grammar-token-stp_size"><tt class="xref docutils literal"><span class="pre">stp_size</span></tt></a> <a class="reference internal" href="#grammar-token-keyword"><tt class="xref docutils literal"><span class="pre">keyword</span></tt></a> <a class="reference internal" href="#grammar-token-terminator"><tt class="xref docutils literal"><span class="pre">terminator</span></tt></a> &lt;payload&gt;
+</pre>
+<div class="section" id="services">
+<h3>SERVICES<a class="headerlink" href="#services" title="Permalink to this headline">¶</a></h3>
+<p>The very first data sent by the host is a list of services.
+This data is encoded in UTF-16-BE (UTF-16 Big Endian) and is the
+same format as it was in STP/0. This ensures compatibility with older
+clients:</p>
+<pre>
+<strong id="grammar-token-services">services    </strong> ::=  <a class="reference internal" href="#grammar-token-count"><tt class="xref docutils literal"><span class="pre">count</span></tt></a> <a class="reference internal" href="#grammar-token-terminator"><tt class="xref docutils literal"><span class="pre">terminator</span></tt></a> &quot;*services&quot; <a class="reference internal" href="#grammar-token-terminator"><tt class="xref docutils literal"><span class="pre">terminator</span></tt></a> <a class="reference internal" href="#grammar-token-service_list"><tt class="xref docutils literal"><span class="pre">service_list</span></tt></a>
+<strong id="grammar-token-service_list">service_list</strong> ::=  <a class="reference internal" href="#grammar-token-service"><tt class="xref docutils literal"><span class="pre">service</span></tt></a> [&quot;,&quot; <a class="reference internal" href="#grammar-token-service"><tt class="xref docutils literal"><span class="pre">service</span></tt></a>]+
+</pre>
+</div>
+<div class="section" id="handshake">
+<h3>HANDSHAKE<a class="headerlink" href="#handshake" title="Permalink to this headline">¶</a></h3>
+<p>The handshake is needed to agree on the STP version in use over a socket
+connection. This is typically done between the host and the proxy as
+well as between the proxy and the client. Each network connection can have a different
+STP version in use, and any proxies will ensure that messages are routed according
+to the STP version.
+For instance, if a client that only supports STP/0 connects to a host supporting
+STP/1 through a proxy, the proxy will take care of delivering STP/0 messages
+over the STP/1 transport layer.</p>
+<p>The side which receives the SERVICES message, aka the network client, must choose
+a valid STP version from this list and initiate it.</p>
+<p>The network client will then send an &#8220;*enable&#8221; request with the specific
+stp service which is defined as:</p>
+<pre>
+<strong id="grammar-token-handshake_req">handshake_req</strong> ::=  &quot;*enable&quot; <a class="reference internal" href="#grammar-token-terminator"><tt class="xref docutils literal"><span class="pre">terminator</span></tt></a> &quot;stp-&quot; <a class="reference internal" href="#grammar-token-version"><tt class="xref docutils literal"><span class="pre">version</span></tt></a>
+<strong id="grammar-token-version">version      </strong> ::=  &quot;0&quot; | &quot;1&quot;
+<strong id="grammar-token-handshake">handshake    </strong> ::=  &quot;STP/&quot; <a class="reference internal" href="#grammar-token-version"><tt class="xref docutils literal"><span class="pre">version</span></tt></a> <a class="reference internal" href="#grammar-token-newline"><tt class="xref docutils literal"><span class="pre">newline</span></tt></a>
+</pre>
+<p>The handshake request is encoded in STP/0, while the response is sent as plain
+US-ASCII. For now there are only two versions to enable, STP/0 and STP/1.</p>
+<p>Once the handshake is sent, the network client and network host must switch to
+the specific STP version and parse and send messages in the specific format.</p>
+</div>
+<div class="section" id="stp1-data">
+<h3>STP1-DATA<a class="headerlink" href="#stp1-data" title="Permalink to this headline">¶</a></h3>
+<p>For STP/1 messages STP-DATA is defined as:</p>
+<pre>
+<strong id="grammar-token-stp_one_data">stp_one_data</strong> ::=  <a class="reference internal" href="#grammar-token-stp_one_type"><tt class="xref docutils literal"><span class="pre">stp_one_type</span></tt></a> <a class="reference internal" href="#grammar-token-headers"><tt class="xref docutils literal"><span class="pre">headers</span></tt></a>
+<strong id="grammar-token-stp_one_type">stp_one_type</strong> ::=  <a class="reference internal" href="#grammar-token-pb_uint_short"><tt class="xref docutils literal"><span class="pre">pb_uint_short</span></tt></a> # 1 = command, 2 = response, 3 = event, 4 = error
+<strong id="grammar-token-headers">headers     </strong> ::=  &lt;protocol buffer message&gt;
+</pre>
+<p>STP1-TYPE represents which type of STP/1 message is found in the HEADERS
+which is represented by the protocol buffer message TransportMessage.
+The type tells what fields can be expected in the HEADERS, and maps to
+a specific protocol buffer message.</p>
+<p>The following types are defined:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="41%" />
+<col width="59%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">STP1-TYPE</th>
+<th class="head">Proto message</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>Command</td>
+</tr>
+<tr class="row-odd"><td>2</td>
+<td>Response</td>
+</tr>
+<tr class="row-even"><td>3</td>
+<td>Event</td>
+</tr>
+<tr class="row-odd"><td>4</td>
+<td>Error</td>
+</tr>
+</tbody>
+</table>
+<p>Protocol buffer definition:</p>
+<div class="highlight-python"><pre>enum STPType
+{
+    COMMAND = 1;
+    RESPONSE = 2;
+    EVENT = 3;
+    ERROR = 4;
+}</pre>
+</div>
+<p>Other types can be added in the future, so any unknown type should be ignored
+by clients and passed on by proxies.</p>
+<p>HEADERS is a PB encoded message containing all the remaining fields for the
+header. Any decoder must ignore fields it does not understand. Proxies must
+also ensure these fields are transported to the client/host.</p>
+<p>The headers are defined using a Protocol Buffer message:</p>
+<div class="highlight-python"><pre>message TransportMessage
+{
+  required string service = 1;
+  required uint32 commandID = 2;
+  required uint32 format = 3;
+  optional uint32 status = 4;
+  optional uint32 tag = 5;
+  required bytes payload = 8;
+}</pre>
+</div>
+<p>Some of the fields are optional and will be present depending on the type of
+STP message.</p>
+<p>For commands the message will be:</p>
+<div class="highlight-python"><pre>message Command
+{
+  required string service = 1;
+  required uint32 commandID = 2;
+  required uint32 format = 3;
+  required uint32 tag = 5;
+  required bytes  payload = 8;
+}</pre>
+</div>
+<p>For responses the message is defined as:</p>
+<div class="highlight-python"><pre>message Response
+{
+  required string service = 1;
+  required uint32 commandID = 2;
+  required uint32 format = 3;
+  required uint32 tag = 5;
+  required bytes  payload = 8;
+}</pre>
+</div>
+<p>For events it looks like:</p>
+<div class="highlight-python"><pre>message Event
+{
+  required string service = 1;
+  required uint32 commandID = 2;
+  required uint32 format = 3;
+  required bytes  payload = 8;
+}</pre>
+</div>
+<p>For errors the message contains:</p>
+<div class="highlight-python"><pre>message Error
+{
+  required string service = 1;
+  required uint32 commandID = 2;
+  required uint32 format = 3;
+  optional uint32 status = 4;
+  optional uint32 tag = 5;
+  required bytes  payload = 8;
+}</pre>
+</div>
+</div>
+<div class="section" id="service">
+<h3>service<a class="headerlink" href="#service" title="Permalink to this headline">¶</a></h3>
+<p>The field <cite>service</cite> is the name of the service on the host as reported in
+the initial <cite>*services</cite> message.</p>
+</div>
+<div class="section" id="commandid">
+<h3>commandID<a class="headerlink" href="#commandid" title="Permalink to this headline">¶</a></h3>
+<p>The field <cite>commandID</cite> is a number in the range of 0 to 2^32-1 and corresponds to a
+given command in the specific service. The command value is unique only in the
+specific service, and is guaranteed to stay the same for all future releases.</p>
+</div>
+<div class="section" id="status">
+<h3>status<a class="headerlink" href="#status" title="Permalink to this headline">¶</a></h3>
+<p>The field <cite>status</cite> is used to send information back to the client when errors
+occur. This field is optional and is only sent when the STP1-TYPE is an
+error message.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Code</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0</td>
+<td>OK</td>
+</tr>
+<tr class="row-odd"><td>3</td>
+<td>Bad Request</td>
+</tr>
+<tr class="row-even"><td>4</td>
+<td>Internal Error</td>
+</tr>
+<tr class="row-odd"><td>5</td>
+<td>Command Not Found</td>
+</tr>
+<tr class="row-even"><td>6</td>
+<td>Service Not Found</td>
+</tr>
+<tr class="row-odd"><td>7</td>
+<td>Out Of Memory (OOM)</td>
+</tr>
+<tr class="row-even"><td>8</td>
+<td>Service Not Enabled</td>
+</tr>
+<tr class="row-odd"><td>9</td>
+<td>Service Already Enabled</td>
+</tr>
+</tbody>
+</table>
+<p>Protocol buffer definition:</p>
+<div class="highlight-python"><pre>enum Status
+{
+  OK = 0;
+  BAD_REQUEST = 3;
+  INTERNAL_ERROR = 4;
+  COMMAND_NOT_FOUND = 5;
+  SERVICE_NOT_FOUND = 6;
+  OUT_OF_MEMORY = 7;
+  SERVICE_NOT_ENABLED = 8;
+  SERVICE_ALREADY_ENABLED = 9;
+}</pre>
+</div>
+<p>Further details on the error can be read from the payload which uses this
+structure:</p>
+<div class="highlight-python"><pre>message ErrorInfo
+{
+    optional string description = 1;
+    optional sint32 line        = 2;
+    optional sint32 column      = 3;
+    optional sint32 offset      = 4;
+}</pre>
+</div>
+</div>
+<div class="section" id="format">
+<h3>format<a class="headerlink" href="#format" title="Permalink to this headline">¶</a></h3>
+<p>The field <cite>format</cite> is used to identify the format of the message body. This
+also determines the encoding used on the message body.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="62%" />
+<col width="24%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Code</th>
+<th class="head">Description</th>
+<th class="head">Encoding</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0</td>
+<td>Protocol Buffer (UMS)</td>
+<td>OCTET</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>JSON structures (UMS)</td>
+<td>UTF-8</td>
+</tr>
+<tr class="row-even"><td>2</td>
+<td>XML structures (UMS)</td>
+<td>UTF-8</td>
+</tr>
+</tbody>
+</table>
+<p>Protocol buffer definition:</p>
+<div class="highlight-python"><pre>enum Format
+{
+    PROTOCOL_BUFFER = 0;
+    JSON = 1;
+    XML = 2;
+}</pre>
+</div>
+</div>
+<div class="section" id="tag">
+<h3>tag<a class="headerlink" href="#tag" title="Permalink to this headline">¶</a></h3>
+<p>The field <cite>tag</cite> represents a synchronization value which is sent by the client to
+bind the request to a response from the host. This field is only used when a
+previous tag was sent from the client, so any events will not have this field.</p>
+<p>The tag system will be part of the protocol API and provides a standardized
+way of doing synchronization. The tag value can be read without knowledge of
+the underlying format. This allows the proxy to properly filter responses back
+to the correct client, and it also makes it easier for the clients to handle
+responses since it can map the tag value to a response handler.</p>
+<p>TAG is an unsigned integer in the range 0 to 2^31-1. The client is free to
+reuse the Tag value as long as there is no current open requests using it.</p>
+</div>
+<div class="section" id="payload">
+<h3>payload<a class="headerlink" href="#payload" title="Permalink to this headline">¶</a></h3>
+<p>The body (or payload) of the message depends on the <cite>format</cite> field but is always
+sent in the <cite>payload</cite> field. This means that the payload can only be decoded
+once the <cite>format</cite> has been found. Otherwise it must be treated as pure binary
+data.</p>
+</div>
+</div>
+<div class="section" id="message-flow">
+<h2>Message flow<a class="headerlink" href="#message-flow" title="Permalink to this headline">¶</a></h2>
+<p>Before the STP/1 message flow can start an initialization phase is needed.
+This phase is performed between the two connecting parts. This would mean
+between the host and proxy and the proxy to any clients. This phase
+is used to determine the basic capabilites of the host, and to choose the
+STP version to use for messages across all connected nodes.</p>
+<p>When the client connects to a host or proxy it will receive a list of services.
+Some of these services are meta-services and is used to determine capabilities
+such as possible STP versions. For instance, the host might send back:</p>
+<div class="highlight-python"><pre>*services scope,ecmascript-debugger,window-manager,stp-1,core-2-4</pre>
+</div>
+<p>This reports back on the STP version available through the service &#8220;stp-1&#8221;.
+It also reports the core version in use, in this case core-2.4 (&#8220;core-2-4&#8221;).</p>
+<p>A set of examples follows of the message flow between a client, proxy,
+and host. The following symbols are used:</p>
+<div class="highlight-python"><pre>~~~~~~~~~&gt; Handshake
+~ ~ ~ ~ ~&gt; Handshake response
+---------&gt; Command
+- - - - -&gt; Response
+=========&gt; Event</pre>
+</div>
+<p>The client must then initiate the handshake which also determines the STP
+version to use, for instance to enable STP version 1:</p>
+<div class="highlight-python"><pre>Host                              client
+
+*services     =================&gt;
+              &lt;~~~~~~~~~~~~~~~~~  *enable stp-1
+STP/1\n       ~ ~ ~ ~ ~ ~ ~ ~ ~&gt;
+              &lt;~~~~~~~~~~~~~~~~~  scope.Connect
+scope.Connect ~ ~ ~ ~ ~ ~ ~ ~ ~&gt;</pre>
+</div>
+<p>A typical message flow between a client, proxy and host looks like this:</p>
+<div class="highlight-python"><pre>Opera                             proxy                   client
+
+handshake       &lt;~~~~~~~~~~~~~~~~     ~ ~ ~ ~ ~ ~ ~ ~ ~&gt;  handshake
+                                      &lt;-----------------  scope.Connect
+scope.Connect   &lt;----------------
+                - - - - - - - - &gt;
+                                      - - - - - - - - -&gt;  scope.Connect
+
+messages        &lt;-------------------  - - - - - - - - -&gt;  messages
+events          =======================================&gt;
+                                  ....
+                                      &lt;-----------------  scope.Disconnect
+scope.Disconnect&lt;----------------
+                - - - - - - - - &gt;
+                                      - - - - - - - - -&gt;  scope.Disconnect</pre>
+</div>
+<p>If the client disconnects the socket without telling the host/proxy, then the
+proxy will disconnect all clients on the given socket connection. For instance:</p>
+<div class="highlight-python"><pre>scope.Disconnect &lt;----------------  scope.Disconnect
+                 - - - - - - - - &gt;</pre>
+</div>
+<p>A STP/0 client will initiate the message flow as described in
+<a class="reference internal" href="#scope-transport-protocol">Scope Transport Protocol</a>.</p>
+<div class="section" id="meta-services">
+<h3>Meta services<a class="headerlink" href="#meta-services" title="Permalink to this headline">¶</a></h3>
+<p>Meta services are sent along the regular service list to report back version
+numbers and other useful information to the clients. This can then be used
+to determine the capabilities of the transport layer and the host.
+All meta services consist of a prefix followed by one or more values. This
+means that the matching of meta services must be done on the prefix only.</p>
+<p>The following meta services are defined:</p>
+<p>STP versions are determined by the &#8220;stp-&#8221; meta service. The host will send
+meta-service per version it supports. This means that the client must choose
+among the reported versions and use one of them. If there is only one STP version
+sent, then it means that another client has already decided which version to
+use. The new client must then either start using the selected version or
+disconnect if it does not support it.</p>
+<p>The service is defined as:</p>
+<pre>
+<strong id="grammar-token-meta_stp">meta_stp</strong> ::=  &quot;stp-&quot; <a class="reference internal" href="#grammar-token-number"><tt class="xref docutils literal"><span class="pre">number</span></tt></a>
+</pre>
+<p>Core version is determined by the &#8220;core-&#8221; meta service and contains the
+core version after the prefix. This core version can be used to determine
+the structure of the messages and how the services will act.
+It is defined as:</p>
+<pre>
+<strong id="grammar-token-meta_core">meta_core   </strong> ::=  &quot;core-&quot; <a class="reference internal" href="#grammar-token-dash_version"><tt class="xref docutils literal"><span class="pre">dash_version</span></tt></a>
+<strong id="grammar-token-dash_version">dash_version</strong> ::=  <a class="reference internal" href="#grammar-token-number"><tt class="xref docutils literal"><span class="pre">number</span></tt></a> (&quot;-&quot; <a class="reference internal" href="#grammar-token-number"><tt class="xref docutils literal"><span class="pre">number</span></tt></a>)*
+</pre>
+</div>
+</div>
+<div class="section" id="extended-stp-0">
+<h2>Extended STP/0<a class="headerlink" href="#extended-stp-0" title="Permalink to this headline">¶</a></h2>
+<p>When STP/0 is in use it will still use the Unified Message Structure for the
+message content. The format will be restricted to XML and JSON as it
+will require too much encoding overhead to binary protocols like the protocol
+buffer into UTF-16BE.</p>
+<p>The basics of the STP/0 transport is in sending a size, service
+name and a payload. Only the size and service name is interesting for any
+existing proxies (2.3 or lower). This means that it is possible to change
+what the payload actually contains and let the receiver decode it.</p>
+<p>The extended STP/0 transport will change the payload to contain the extra
+fields required by an STP/1 message, but it will encoded to be compatible with
+UTF-16BE. That is, it will be sent as pure text. The payload will consist of two
+things: the STP/1 header and the real payload. The header can then be decoded
+before the actual payload is sent to the next layer.</p>
+<p>Definition:</p>
+<pre>
+<strong id="id2">stp         </strong> ::=  <a class="reference internal" href="#grammar-token-count"><tt class="xref docutils literal"><span class="pre">count</span></tt></a> <a class="reference internal" href="#grammar-token-terminator"><tt class="xref docutils literal"><span class="pre">terminator</span></tt></a> &quot;scope&quot; <a class="reference internal" href="#grammar-token-terminator"><tt class="xref docutils literal"><span class="pre">terminator</span></tt></a> <a class="reference internal" href="#grammar-token-data"><tt class="xref docutils literal"><span class="pre">data</span></tt></a>
+<strong id="grammar-token-data">data        </strong> ::=  &quot;STP/&quot; <a class="reference internal" href="#grammar-token-version"><tt class="xref docutils literal"><span class="pre">version</span></tt></a> <a class="reference internal" href="#grammar-token-terminator"><tt class="xref docutils literal"><span class="pre">terminator</span></tt></a> <a class="reference internal" href="#grammar-token-header_size"><tt class="xref docutils literal"><span class="pre">header_size</span></tt></a> <a class="reference internal" href="#grammar-token-terminator"><tt class="xref docutils literal"><span class="pre">terminator</span></tt></a> <a class="reference internal" href="#grammar-token-header"><tt class="xref docutils literal"><span class="pre">header</span></tt></a> &lt;payload&gt;
+<strong id="id3">version     </strong> ::=  <a class="reference internal" href="#grammar-token-number"><tt class="xref docutils literal"><span class="pre">number</span></tt></a>
+<strong id="grammar-token-header_size">header_size </strong> ::=  <a class="reference internal" href="#grammar-token-number"><tt class="xref docutils literal"><span class="pre">number</span></tt></a>
+<strong id="grammar-token-header">header      </strong> ::=  &quot;[&quot; <a class="reference internal" href="#grammar-token-service_name"><tt class="xref docutils literal"><span class="pre">service_name</span></tt></a> &quot;,&quot; <a class="reference internal" href="#grammar-token-stp_type"><tt class="xref docutils literal"><span class="pre">stp_type</span></tt></a> &quot;,&quot; <tt class="xref docutils literal"><span class="pre">command_id</span></tt> &quot;,&quot; <a class="reference internal" href="#grammar-token-format"><tt class="xref docutils literal"><span class="pre">format</span></tt></a> [&quot;,&quot; <a class="reference internal" href="#grammar-token-tag"><tt class="xref docutils literal"><span class="pre">tag</span></tt></a> [&quot;,&quot; <a class="reference internal" href="#grammar-token-status"><tt class="xref docutils literal"><span class="pre">status</span></tt></a> ] ] &quot;]&quot;
+<strong id="grammar-token-service_name">service_name</strong> ::=  &lt;json string&gt;
+<strong id="grammar-token-stp_type">stp_type    </strong> ::=  &lt;json int&gt;
+<strong id="grammar-token-command-id">command-id  </strong> ::=  &lt;json int&gt;
+<strong id="grammar-token-format">format      </strong> ::=  &lt;json int&gt;
+<strong id="grammar-token-tag">tag         </strong> ::=  &lt;json int&gt;
+<strong id="grammar-token-status">status      </strong> ::=  &lt;json int&gt;
+</pre>
+<p>Messages must always be sent to the  &#8220;scope&#8221; service. This ensures that
+there is only one service that needs to be enabled in the old proxies. This
+means that a client must first enable the &#8220;scope&#8221; service by sending
+&#8220;*enable scope&#8221;, or use the appropriate (DOM) API. This call will be ignored
+by STP enabled hosts. After this is sent, the client must encode all outgoing
+STP/1 messages according to the definition and send it to the &#8220;scope&#8221; service.
+The host will recognize this extended format and decode as an STP/1 message.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference internal" href="#">Scope transport protocol v1</a><ul>
+<li><a class="reference internal" href="#ebnf">EBNF</a></li>
+<li><a class="reference internal" href="#unified-message-structure">Unified Message Structure</a></li>
+<li><a class="reference internal" href="#protocols">Protocols</a><ul>
+<li><a class="reference internal" href="#scope-transport-protocol">Scope Transport Protocol</a></li>
+<li><a class="reference internal" href="#scope-http-adapter-protocol">Scope HTTP Adapter Protocol</a></li>
+<li><a class="reference internal" href="#scope-dom-interface">Scope DOM Interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#problems">Problems</a></li>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#backwards-compatibility">Backwards compatibility</a><ul>
+<li><a class="reference internal" href="#transport-layer">Transport layer</a></li>
+<li><a class="reference internal" href="#opera-host">Opera host</a></li>
+<li><a class="reference internal" href="#proxy">Proxy</a></li>
+<li><a class="reference internal" href="#client">Client</a></li>
+<li><a class="reference internal" href="#opera-dragonfly">Opera Dragonfly</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#stp-1">STP/1</a><ul>
+<li><a class="reference internal" href="#services">SERVICES</a></li>
+<li><a class="reference internal" href="#handshake">HANDSHAKE</a></li>
+<li><a class="reference internal" href="#stp1-data">STP1-DATA</a></li>
+<li><a class="reference internal" href="#service">service</a></li>
+<li><a class="reference internal" href="#commandid">commandID</a></li>
+<li><a class="reference internal" href="#status">status</a></li>
+<li><a class="reference internal" href="#format">format</a></li>
+<li><a class="reference internal" href="#tag">tag</a></li>
+<li><a class="reference internal" href="#payload">payload</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#message-flow">Message flow</a><ul>
+<li><a class="reference internal" href="#meta-services">Meta services</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#extended-stp-0">Extended STP/0</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="index.html"
+                                  title="previous chapter">Scope Interface for the Opera Browser</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="unified-message-structure.html"
+                                  title="next chapter">Unified Message Structure</a></p>
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/img-press-logo.png" alt="Logo"/>
+            </a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </body>
+</html>
